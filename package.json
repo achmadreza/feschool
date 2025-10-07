@@ -11,11 +11,13 @@
   },
   "dependencies": {
     "@heroui/button": "^2.2.26",
+    "@heroui/calendar": "^2.2.27",
     "@heroui/form": "^2.1.26",
     "@heroui/input": "^2.4.27",
+    "@heroui/popover": "^2.3.27",
     "@heroui/react": "^2.8.4",
-    "@heroui/system": "^2.4.22",
-    "@heroui/theme": "^2.4.22",
+    "@heroui/system": "^2.4.23",
+    "@heroui/theme": "^2.4.23",
     "@tailwindcss/postcss": "^4.1.14",
     "@tailwindcss/vite": "^4.1.14",
     "framer-motion": "^12.23.22",
@@ -25,7 +27,8 @@
     "react-router": "^7.9.3",
     "react-toastify": "^11.0.5",
     "tailwindcss": "^4.1.14",
-    "vite-tsconfig-paths": "^5.1.4"
+    "vite-tsconfig-paths": "^5.1.4",
+    "zustand": "^5.0.8"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
