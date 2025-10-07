@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 
 export default function Login() {
   // const [submitted, setSubmitted] = useState<any | null>(null);
-  const styleInput = "py-1 px-2 border-2 border-purple-300 rounded-sm";
+  const styleInput = "py-1 px-2 border-2 border-purple-300 ";
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -28,7 +28,7 @@ export default function Login() {
     <div className="w-full h-screen">
       <div className="flex h-full">
         {/* form */}
-        <div className="w-2/5 h-full flex flex-col items-center justify-center bg-purple-100">
+        <div className="w-2/5 h-full flex flex-col items-center justify-center bg-purple-50 border-r-2 border-purple-400 ">
           <h2 className="text-purple-400 font-bold text-left text-xl">
             Login Form
           </h2>
@@ -39,11 +39,12 @@ export default function Login() {
               label="username"
               labelPlacement="outside"
               name="userName"
-              placeholder="Enter your username"
+              // placeholder="Enter your username"
               type="text"
               classNames={{
-                input: styleInput,
+                inputWrapper: styleInput,
               }}
+              variant="bordered"
             />
             <Input
               isRequired
@@ -51,11 +52,12 @@ export default function Login() {
               label="password"
               labelPlacement="outside"
               name="password"
-              placeholder="Enter your password"
+              // placeholder="Enter your password"
               type="password"
               classNames={{
-                input: styleInput,
+                inputWrapper: styleInput,
               }}
+              variant="bordered"
             />
             <div className="w-full flex justify-center">
               <Button
