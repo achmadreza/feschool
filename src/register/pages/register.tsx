@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 interface DataBase64 {
   nama: string;
   nomorInduk: string;
+  noHp: string;
 }
 
 const kelas = ["TK A", "TK B"];
@@ -15,10 +16,11 @@ const jenisKelamin = ["LAKI-LAKI", "PEREMPUAN"];
 
 export default function Register() {
   const [searchParams] = useSearchParams();
-  const [phoneNumber, setPhoneNumber] = useState("");
   const data = searchParams.get("data");
-  //   console.log(data);
   const decodeBase64: DataBase64 = data && JSON.parse(atob(data));
+  console.log(decodeBase64);
+  const [phoneNumber, setPhoneNumber] = useState(decodeBase64.noHp ?? "");
+  //   console.log(data);
   //   console.log(decodeBase64);
 
   const handlePhoneNumber = (e: string) => {
@@ -154,7 +156,7 @@ export default function Register() {
         />
         <Input
           isRequired
-          errorMessage="Pastikan Nomor HP Terisi"
+          errorMessage="Pastikan Tahun AJaran Terisi"
           label="Tahun Ajaran"
           labelPlacement="outside"
           name="tahunAjaran"

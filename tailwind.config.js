@@ -4,8 +4,8 @@ const {heroui} = require("@heroui/theme");
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    "./node_modules/@heroui/theme/dist/components/(button|calendar|form|input|popover|ripple|spinner).js",
-  ],
+    "./node_modules/@heroui/theme/dist/components/(button|calendar|form|input|popover|table|ripple|spinner|checkbox|spacer).js"
+],
   theme: {
     extend: {},
   },
