@@ -46,7 +46,7 @@ export default function Add() {
     }
   };
   return (
-    <div>
+    <div className="bg-white">
       <h2>Add Student</h2>
       <Form
         className="w-1/2 flex flex-col flex-wrap gap-6  p-4 rounded-xl"
