@@ -1,5 +1,5 @@
 import { Input } from "@heroui/input";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import axios from "axios";
 import type { GetStudent } from "../../interface/getStudent.interface";
@@ -11,6 +11,12 @@ import {
   TableRow,
   TableCell,
   Form,
+  Checkbox,
+  Button,
+  // DateInput,
+  DatePicker,
+  SelectItem,
+  Select,
   // DatePicker,
   // type DateInputValue,
   // DateInput,
@@ -24,6 +30,9 @@ import {
 } from "@heroui/dropdown";
 
 import { MdClose, MdMoreHoriz } from "react-icons/md";
+import { parseDate, type DateValue } from "@internationalized/date";
+import { toast } from "react-toastify";
+import { jenisKelamin, kelas } from "../../shared/studentEnum";
 
 export default function Students() {
   const [students, setStudents] = useState<GetStudent[]>([]);
@@ -36,6 +45,8 @@ export default function Students() {
   const titlePage = pathname.split("/")[2];
   const { noInduk } = useParams();
   const defaultBirthDay = new Date().toISOString().split("T")[0];
+  const [isEdit, setIsEdit] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   console.log(noInduk);
   const getStudents = async () => {
@@ -67,15 +78,44 @@ export default function Students() {
     navigate("/dashboard/students/");
   };
 
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const data = Object.fromEntries(new FormData(e.currentTarget));
+    console.log(data);
+    const res = await fetch(
+      `${import.meta.env.VITE_API_URL}/student/${noInduk ?? ""}`,
+      {
+        method: "Put",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      }
+    );
+    const resBody = await res.json();
+    if (!res.ok) {
+      if (!resBody.message && res.status === 400) {
+        return toast.error(resBody.error);
+      }
+      toast.error(resBody.message);
+    } else {
+      toast.success(resBody.message);
+      setIsEdit(false);
+      setSuccess(!success);
+      //   console.log(resBody.message);
+    }
+  };
+
   useEffect(() => {
     getStudents();
-  }, []);
+  }, [success]);
 
   useEffect(() => {
     if (noInduk) {
       getDetailStudent();
     }
-  }, [noInduk]);
+  }, [noInduk, success]);
 
   return (
     <div className="w-full h-full flex gap-3">
@@ -155,10 +195,10 @@ export default function Students() {
       <div
         className={`${
           noInduk ? "w-3/4  visible " : "invisible w-0 overflow-hidden"
-        } h-full relative bg-white rounded-lg transition-all duration-700`}
+        } h-full relative  rounded-lg transition-all duration-700`}
       >
         <div
-          className="absolute top-0 right-0 text-lg text-white"
+          className="absolute top-0 right-0 text-lg text-white cursor-pointer"
           onClick={handleCloseDetail}
         >
           <MdClose />
@@ -166,102 +206,153 @@ export default function Students() {
         {!loading && (
           <>
             <div className="w-full h-36 bg-[url(/space.jpg)] p-5 mb-2 rounded-lg">
-              <div className="flex h-full items-center gap-5 text-white">
-                <div className="w-16 h-16 rounded-full flex justify-center items-center bg-blue-700 text-white">
-                  {detailStudent?.nama.charAt(0).toUpperCase()}
+              {!isEdit && (
+                <div className="flex h-full items-center gap-5 text-white">
+                  <div className="w-16 h-16 rounded-full flex justify-center items-center bg-blue-700 text-white">
+                    {detailStudent?.nama?.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <p className="text-xl">{detailStudent?.nama}</p>
+                    <p className="text-white text-sm">
+                      {detailStudent?.kelas
+                        ? detailStudent?.kelas
+                        : "Belum ada Kelas"}{" "}
+                      | {noInduk}
+                    </p>
+                  </div>
                 </div>
-                <div className="flex flex-col gap-2">
-                  <p className="text-xl">{detailStudent?.nama}</p>
-                  <p className="text-white text-sm">
-                    {detailStudent?.kelas
-                      ? detailStudent?.kelas
-                      : "Belum ada Kelas"}{" "}
-                    | {noInduk}
-                  </p>
-                </div>
-              </div>
+              )}
             </div>
-            <div className="p-4">
-              <Form className="border rounded-lg p-3">
-                {/* <div className="w-full flex gap-3 justify-between items-center">
-              <Input
-                label="Nama"
-                labelPlacement="outside"
-                defaultValue={detailStudent?.nama}
-                variant="bordered"
-                disabled
-              />
-              <Input
-                label="Kelas"
-                labelPlacement="outside"
-                defaultValue={detailStudent?.kelas}
-                variant="bordered"
-                disabled
-              />
-            </div> */}
+            <div className="p-4 bg-white rounded-lg">
+              <div className="w-full flex items-center justify-end mb-3">
+                <Checkbox
+                  isSelected={isEdit}
+                  checked={isEdit}
+                  onValueChange={setIsEdit}
+                >
+                  Edit Field
+                </Checkbox>
+              </div>
+              <Form className="border rounded-lg p-3" onSubmit={onSubmit}>
+                <div className="w-full flex gap-3 justify-between items-center">
+                  {isEdit && (
+                    <>
+                      <Input
+                        label="Nama"
+                        name="nama"
+                        labelPlacement="outside"
+                        defaultValue={detailStudent?.nama}
+                        variant="bordered"
+                        disabled={!isEdit}
+                      />
+                      <Select
+                        label="Kelas"
+                        placeholder="Pilih Kelas"
+                        isRequired
+                        variant="bordered"
+                        labelPlacement="outside"
+                        name="kelas"
+                        defaultSelectedKeys={[detailStudent?.kelas]}
+                      >
+                        {kelas.map((k) => (
+                          <SelectItem key={k}>{k}</SelectItem>
+                        ))}
+                      </Select>
+                    </>
+                  )}
+                </div>
                 <div className="w-full flex gap-3 justify-between items-center">
                   <Input
                     label="Tahun Ajaran"
+                    name="tahunAjaran"
                     labelPlacement="outside"
                     defaultValue={detailStudent?.tahunAjaran.toString()}
-                    variant="bordered"
-                    disabled
+                    variant={isEdit ? "bordered" : "faded"}
+                    disabled={!isEdit}
                   />
-                  <Input
+                  <DatePicker
                     labelPlacement="outside"
                     label={"Tanggal Lahir"}
                     name="tanggalLahir"
-                    variant="bordered"
                     // selectorButtonPlacement="start"
                     defaultValue={
-                      detailStudent.tanggalLahir
-                        ? detailStudent.tanggalLahir
-                        : defaultBirthDay
+                      detailStudent?.tanggalLahir
+                        ? parseDate(detailStudent?.tanggalLahir.split("T")[0])
+                        : (parseDate(defaultBirthDay) as DateValue)
                     }
-                    disabled
+                    variant={isEdit ? "bordered" : "faded"}
+                    disabled={!isEdit}
+                    selectorButtonPlacement="start"
+                    showMonthAndYearPickers
                     // showMonthAndYearPickers
                   />
                 </div>
                 <div className="w-full flex gap-3 justify-between items-center">
                   <Input
                     label="Nama Ayah"
+                    name="namaAyah"
                     labelPlacement="outside"
                     defaultValue={detailStudent?.namaAyah}
-                    variant="bordered"
-                    disabled
+                    variant={isEdit ? "bordered" : "faded"}
+                    disabled={!isEdit}
                   />
                   <Input
                     label="Nama Ibu"
+                    name="namaIbu"
                     labelPlacement="outside"
                     defaultValue={detailStudent?.namaIbu}
-                    variant="bordered"
-                    disabled
+                    variant={isEdit ? "bordered" : "faded"}
+                    disabled={!isEdit}
                   />
                 </div>
                 <div className="w-full flex gap-3 justify-between items-center">
                   <Input
                     label="Nomor HP"
+                    name="noHp"
                     labelPlacement="outside"
                     defaultValue={detailStudent?.noHp}
-                    variant="bordered"
+                    variant={isEdit ? "bordered" : "faded"}
                     type="number"
                     // className="w-1/2"
-                    disabled
+                    disabled={!isEdit}
                   />
-                  <Input
+
+                  <Select
                     label="Jenis Kelamin"
+                    placeholder="Pilih Jenis Kelamin"
+                    labelPlacement="outside"
+                    isRequired
+                    variant={isEdit ? "bordered" : "faded"}
+                    name="gender"
+                    defaultSelectedKeys={[detailStudent?.gender]}
+                  >
+                    {jenisKelamin.map((k) => (
+                      <SelectItem key={k}>{k}</SelectItem>
+                    ))}
+                  </Select>
+
+                  {/* <Input
+                    label="Jenis Kelamin"
+                    name="gender"
                     labelPlacement="outside"
                     defaultValue={
                       detailStudent?.gender
                         ? detailStudent?.gender
                         : "LAKI-LAKI"
                     }
-                    variant="bordered"
+                    variant={isEdit ? "bordered" : "faded"}
                     // type="number"
                     // className="w-1/2"
-                    disabled
-                  />
+                    disabled={!isEdit}
+                  /> */}
                 </div>
+                {isEdit && (
+                  <div className="mt-3 w-full flex justify-end">
+                    <Button type="submit" color="primary">
+                      Submit
+                    </Button>
+                  </div>
+                )}
               </Form>
             </div>
           </>

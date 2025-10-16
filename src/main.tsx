@@ -27,6 +27,10 @@ createRoot(document.getElementById("root")!).render(
             <Route path="/dashboard/students/:noInduk" element={<Students />} />
             <Route path="/dashboard/payments">
               <Route index element={<Payments />} />
+              <Route
+                path={"/dashboard/payments/:noInduk"}
+                element={<Payments />}
+              />
               <Route path="/dashboard/payments/add" element={<Add />} />
             </Route>
           </Route>
