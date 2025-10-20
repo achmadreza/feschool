@@ -52,7 +52,8 @@ export default function Add() {
         className="w-1/2 flex flex-col flex-wrap gap-6  p-4 rounded-xl"
         onSubmit={onSubmit}
       >
-        <Input
+  
+  <Input
           isRequired
           errorMessage="Please enter a valid username"
           label="Nama"
@@ -68,10 +69,10 @@ export default function Add() {
           <Input
             isRequired
             errorMessage="Pastikan Nomor HP Terisi"
-            label="Nomor HP"
+            label="No Handphone"
             labelPlacement="outside"
             name="noHp"
-            placeholder=""
+            placeholder="Masukkan Nomor HP"
             onValueChange={handlePhoneNumber}
             value={phoneNumber}
             //   classNames={styledInput}
@@ -81,51 +82,7 @@ export default function Add() {
           />
         </div>
 
-        <NumberInput
-          isRequired
-          errorMessage="Pastikan Anual Fee terisi"
-          label="Anual Fee"
-          labelPlacement="outside"
-          name="anualFee"
-          // placeholder="Masukan Nama Ayah"
-          //   defaultValue={"Pardi"}
-          //   classNames={styledInput}
 
-          variant="bordered"
-        />
-        <NumberInput
-          isRequired
-          errorMessage="Pastikan Tuition Fee Terisi"
-          label="Tuition Fee"
-          labelPlacement="outside"
-          name="tuitionFee"
-          // placeholder="Masukan Nama Ibu"
-          //   defaultValue={"Surti"}
-          //   classNames={styledInput}
-          variant="bordered"
-        />
-        <NumberInput
-          isRequired
-          errorMessage="Pastikan Registration Fee Terisi"
-          label="Registration Fee"
-          labelPlacement="outside"
-          name="registrationFee"
-          // placeholder="Masukan Nama Ibu"
-          //   defaultValue={"Surti"}
-          //   classNames={styledInput}
-          variant="bordered"
-        />
-        <NumberInput
-          isRequired
-          errorMessage="Pastikan Uniform Fee Terisi"
-          label="Uniform Fee"
-          labelPlacement="outside"
-          name="uniformFee"
-          // placeholder="Masukan Nama Ibu"
-          //   defaultValue={"Surti"}
-          //   classNames={styledInput}
-          variant="bordered"
-        />
         {/* <Input
           isRequired
           errorMessage="Pastikan Tanggal Lahir Terisi"
@@ -143,14 +100,66 @@ export default function Add() {
           label="Tahun Ajaran"
           labelPlacement="outside"
           name="tahunAjaran"
-          placeholder=""
+          placeholder="Tahun Ajaran"
           //   classNames={styledInput}
-          type="number"
+          // type="number"
+          variant="bordered"
+        />
+
+        <Input
+          isRequired
+          errorMessage="Pastikan Registration Fee Terisi"
+          label="Registration Fee"
+          labelPlacement="outside"
+          name="registrationFee"
+          placeholder="Registration Fee"
+          //   defaultValue={"Surti"}
+          //   classNames={styledInput}
+          variant="bordered"
+        />
+
+
+        <Input
+          isRequired
+          errorMessage="Pastikan Anual Fee terisi"
+          label="Anual Fee"
+          labelPlacement="outside"
+          name="anualFee"
+          placeholder="Anuall Fee"
+          //   defaultValue={"Pardi"}
+          //   classNames={styledInput}
+
+          variant="bordered"
+        />
+
+        <Input
+          isRequired
+          errorMessage="Pastikan Tuition Fee Terisi"
+          label="Tuition Fee"
+          labelPlacement="outside"
+          name="tuitionFee"
+          placeholder="Tuition Fee"
+          //   defaultValue={"Surti"}
+          //   classNames={styledInput}
           variant="bordered"
         />
         <Input
+          isRequired
+          errorMessage="Pastikan Uniform Fee Terisi"
+          label="Uniform Fee"
+          labelPlacement="outside"
+          name="uniformFee"
+          placeholder="Uniform Fee"
+          //   defaultValue={"Surti"}
+          //   classNames={styledInput}
+          variant="bordered"
+        />
+  
+      
+        <Input
           label="Link Registrarion"
           labelPlacement="outside"
+          placeholder="Link Registration"
           disabled
           value={registrationLink}
           variant="bordered"

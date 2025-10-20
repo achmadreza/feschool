@@ -1,2 +1,2 @@
-export const kelas = ["TK A", "TK B"];
+export const kelas = ["Kindergarten A", "Kindergarten B", "Preschool",];
 export const jenisKelamin = ["LAKI-LAKI", "PEREMPUAN"];
