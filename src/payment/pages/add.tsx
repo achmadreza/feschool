@@ -3,19 +3,31 @@ import { Form } from "@heroui/form";
 import { Input } from "@heroui/input";
 import { NumberInput } from "@heroui/react";
 import axios from "axios";
-import { useState, type FormEvent } from "react";
+import { useState, type ChangeEvent, type FormEvent } from "react";
 import { toast } from "react-toastify";
 
 export default function Add() {
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [paymentItems, setPaymentItems] = useState({
+    tuitionFee: "",
+    anualFee: "",
+    registrationFee: "",
+    uniformFee: "",
+  });
   const [registrationLink, setRegistrationLink] = useState("");
   const handlePhoneNumber = (e: string) => {
     if (e.length < 15) {
-      setPhoneNumber(e);
+      setPhoneNumber(e.replace(/[^0-9]/g, ""));
     } else {
       return;
     }
   };
+
+  const handlePaymentItems = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setPaymentItems({ ...paymentItems, [name]: value.replace(/[^0-9]/g, "") });
+  };
+
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -46,14 +58,13 @@ export default function Add() {
     }
   };
   return (
-    <div className="bg-white">
+    <div className="bg-white p-5 rounded-lg">
       <h2>Add Student</h2>
       <Form
         className="w-1/2 flex flex-col flex-wrap gap-6  p-4 rounded-xl"
         onSubmit={onSubmit}
       >
-  
-  <Input
+        <Input
           isRequired
           errorMessage="Please enter a valid username"
           label="Nama"
@@ -77,11 +88,10 @@ export default function Add() {
             value={phoneNumber}
             //   classNames={styledInput}
             //   defaultValue={new Date()}
-            type="number"
+            type="text"
             variant="bordered"
           />
         </div>
-
 
         {/* <Input
           isRequired
@@ -115,9 +125,10 @@ export default function Add() {
           placeholder="Registration Fee"
           //   defaultValue={"Surti"}
           //   classNames={styledInput}
+          onChange={handlePaymentItems}
+          value={paymentItems.registrationFee}
           variant="bordered"
         />
-
 
         <Input
           isRequired
@@ -128,7 +139,8 @@ export default function Add() {
           placeholder="Anuall Fee"
           //   defaultValue={"Pardi"}
           //   classNames={styledInput}
-
+          onChange={handlePaymentItems}
+          value={paymentItems.anualFee}
           variant="bordered"
         />
 
@@ -141,6 +153,8 @@ export default function Add() {
           placeholder="Tuition Fee"
           //   defaultValue={"Surti"}
           //   classNames={styledInput}
+          onChange={handlePaymentItems}
+          value={paymentItems.tuitionFee}
           variant="bordered"
         />
         <Input
@@ -152,10 +166,11 @@ export default function Add() {
           placeholder="Uniform Fee"
           //   defaultValue={"Surti"}
           //   classNames={styledInput}
+          onChange={handlePaymentItems}
+          value={paymentItems.uniformFee}
           variant="bordered"
         />
-  
-      
+
         <Input
           label="Link Registrarion"
           labelPlacement="outside"

@@ -21,6 +21,7 @@ import type { GetPayments } from "../../interface/getPayments.interface";
 import { MdClose, MdLink, MdMoreHoriz, MdSchool } from "react-icons/md";
 import { useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
+import { formatCurrency } from "../../shared/formatCurrency";
 
 export default function Payments() {
   const [q, setQ] = useState("");
@@ -159,10 +160,10 @@ export default function Payments() {
                     <TableRow key={i}>
                       <TableCell>{s.nomorInduk}</TableCell>
                       <TableCell>{s.nama}</TableCell>
-                      <TableCell>{s.anualFee}</TableCell>
-                      <TableCell>{s.tuitionFee}</TableCell>
-                      <TableCell>{s.registrationFee}</TableCell>
-                      <TableCell>{s.uniformFee}</TableCell>
+                      <TableCell>{formatCurrency(s.anualFee)}</TableCell>
+                      <TableCell>{formatCurrency(s.tuitionFee)}</TableCell>
+                      <TableCell>{formatCurrency(s.registrationFee)}</TableCell>
+                      <TableCell>{formatCurrency(s.uniformFee)}</TableCell>
                       <TableCell>
                         <Dropdown>
                           <DropdownTrigger className="w-full">

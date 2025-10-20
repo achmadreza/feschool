@@ -4,7 +4,7 @@ const baseDashboardUrl = "/dashboard";
 const dataSideBar = [
   {
     icon: <MdSchool />,
-    title: "students",
+    title: "Students",
     href: `${baseDashboardUrl}/students`,
   },
   {
