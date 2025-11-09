@@ -1,9 +1,11 @@
 import { Form, Input, Button } from "@heroui/react";
 import { type FormEvent } from "react";
+import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
 
 export default function Login() {
   // const [submitted, setSubmitted] = useState<any | null>(null);
+  const navigate = useNavigate();
   const styleInput = "py-1 px-2 border-2 border-purple-300 ";
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -21,7 +23,8 @@ export default function Login() {
     if (!res.ok) {
       toast.error(resBody.message);
     } else {
-      console.log(resBody.message);
+      navigate("/dashboard");
+      toast.success(resBody.message);
     }
   };
   return (

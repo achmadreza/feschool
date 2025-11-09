@@ -4,6 +4,7 @@ import { Select, SelectItem } from "@heroui/select";
 import { useState, type FormEvent } from "react";
 import { useSearchParams } from "react-router";
 import { toast } from "react-toastify";
+import { fileToBase64 } from "../../shared/fileToBase64";
 
 interface DataBase64 {
   nama: string;
@@ -11,7 +12,7 @@ interface DataBase64 {
   noHp: string;
 }
 
-const kelas = ["TK A", "TK B"];
+const kelas = ["KINDERGARTEN A", "KINDERGARTEN B", "PRESCHOOL"];
 const jenisKelamin = ["LAKI-LAKI", "PEREMPUAN"];
 
 export default function Register() {
@@ -48,8 +49,20 @@ export default function Register() {
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const data = Object.fromEntries(new FormData(e.currentTarget));
-    console.log(data);
+    const dataForm = Object.fromEntries(new FormData(e.currentTarget));
+    // console.log(dataForm);
+    const { pasPhoto, kk, akteLahir, ...data } = dataForm;
+    // console.log(
+    //   await fileToBase64(pasPhoto as File),
+    //   await fileToBase64(kk),
+    //   await fileToBase64(akteLahir)
+    // );
+    const files = {
+      pasPhoto: await fileToBase64(pasPhoto as File),
+      kk: await fileToBase64(kk as File),
+      akteLahir: await fileToBase64(akteLahir as File),
+    };
+    // console.log({ ...files, ...data });
     const res = await fetch(
       `${import.meta.env.VITE_API_URL}/student/${
         decodeBase64.nomorInduk ?? ""
@@ -59,7 +72,7 @@ export default function Register() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ ...files, ...data }),
       }
     );
     const resBody = await res.json();
@@ -183,6 +196,42 @@ export default function Register() {
             variant="bordered"
           />
         </div>
+        <Input
+          isRequired
+          errorMessage="Pastikan Upload foto KK"
+          label="KK"
+          labelPlacement="outside"
+          name="kk"
+          placeholder=""
+          //   classNames={styledInput}
+          //   defaultValue={new Date()}
+          type="file"
+          variant="bordered"
+        />
+        <Input
+          isRequired
+          errorMessage="Pastikan Upload foto Akte Kelahiran"
+          label="Akte Lahir"
+          labelPlacement="outside"
+          name="akteLahir"
+          placeholder=""
+          //   classNames={styledInput}
+          //   defaultValue={new Date()}
+          type="file"
+          variant="bordered"
+        />
+        <Input
+          isRequired
+          errorMessage="Pastikan Upload pas foto"
+          label="Pas Foto"
+          labelPlacement="outside"
+          name="pasPhoto"
+          placeholder=""
+          //   classNames={styledInput}
+          //   defaultValue={new Date()}
+          type="file"
+          variant="bordered"
+        />
         <Button type="submit" className="w-full" color="primary">
           Submit
         </Button>

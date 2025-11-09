@@ -49,7 +49,7 @@ export default function Payments() {
   const getPayment = async () => {
     try {
       const { data } = await axios.get(
-        `${import.meta.env.VITE_API_URL}/payment`
+        `${import.meta.env.VITE_API_URL}/payment?q=${q}`
       );
       setPayments(data.data);
     } catch (error) {

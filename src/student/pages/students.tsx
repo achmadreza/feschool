@@ -52,7 +52,7 @@ export default function Students() {
   const getStudents = async () => {
     try {
       const { data } = await axios.get(
-        `${import.meta.env.VITE_API_URL}/student`
+        `${import.meta.env.VITE_API_URL}/student?q=${q}`
       );
       setStudents(data.data);
     } catch (error) {
@@ -109,7 +109,7 @@ export default function Students() {
 
   useEffect(() => {
     getStudents();
-  }, [success]);
+  }, [success, q]);
 
   useEffect(() => {
     if (noInduk) {
@@ -161,7 +161,7 @@ export default function Students() {
                   return (
                     <TableRow key={i}>
                       <TableCell>{s.nama}</TableCell>
-                      <TableCell>{s.kelas}</TableCell>
+                      <TableCell className="text-xs">{s.kelas}</TableCell>
                       {/* <TableCell>{s.gender}</TableCell> */}
                       <TableCell>{s.tahunAjaran}</TableCell>
                       <TableCell>
@@ -209,7 +209,14 @@ export default function Students() {
               {!isEdit && (
                 <div className="flex h-full items-center gap-5 text-white">
                   <div className="w-16 h-16 rounded-full flex justify-center items-center bg-blue-700 text-white">
-                    {detailStudent?.nama?.charAt(0).toUpperCase()}
+                    {detailStudent?.pasPhoto ? (
+                      <img
+                        src={`${detailStudent?.pasPhoto}`}
+                        className="w-full h-full object-cover rounded-full"
+                      />
+                    ) : (
+                      detailStudent?.nama?.charAt(0).toUpperCase()
+                    )}
                   </div>
                   <div className="flex flex-col gap-2">
                     <p className="text-xl">{detailStudent?.nama}</p>
@@ -354,6 +361,10 @@ export default function Students() {
                   </div>
                 )}
               </Form>
+              <div className="w-full mt-5 grid grid-cols-1 gap-4">
+                <img src={`${detailStudent?.kk}`} />
+                <img src={`${detailStudent?.akteLahir}`} />
+              </div>
             </div>
           </>
         )}

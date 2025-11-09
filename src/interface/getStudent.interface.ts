@@ -12,5 +12,8 @@ export interface GetStudent {
   createdDate: string;
   gender: string;
   nomorInduk: number;
+  pasPhoto: string;
+  kk: string;
+  akteLahir: string;
   __v: number;
 }
