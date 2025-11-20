@@ -8,12 +8,14 @@ import {
   Form,
   Input,
   NumberInput,
+  Tab,
   Table,
   TableBody,
   TableCell,
   TableColumn,
   TableHeader,
   TableRow,
+  Tabs,
 } from "@heroui/react";
 import axios from "axios";
 import { useEffect, useState, type FormEvent } from "react";
@@ -22,29 +24,38 @@ import { MdClose, MdLink, MdMoreHoriz, MdSchool } from "react-icons/md";
 import { useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
 import { formatCurrency } from "../../shared/formatCurrency";
+import { formatDate } from "../../shared/formatDate";
+import type { GetStudent } from "../../interface/getStudent.interface";
+
+enum TabsMenu {
+  DETAIL = "DETAIL",
+  INSTALMENT = "INSTALMENT",
+}
 
 export default function Payments() {
   const [q, setQ] = useState("");
   const [payments, setPayments] = useState<GetPayments[]>([]);
   const [detailPayment, setDetailPayment] = useState<GetPayments | undefined>();
-  const [phoneNumber, setPhoneNumber] = useState("");
+  const [studentdetail, setStudentDetail] = useState<GetStudent | undefined>();
+  // const [phoneNumber, setPhoneNumber] = useState("");
   const navigate = useNavigate();
   const { noInduk } = useParams();
   const [isEdit, setIsEdit] = useState(false);
-  const [success, setSuccess] = useState(false);
+  // const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [selection, setSelection] = useState<TabsMenu>(TabsMenu.DETAIL);
 
   const handleCloseDetail = () => {
     navigate("/dashboard/payments/");
   };
 
-  const handlePhoneNumber = (e: string) => {
-    if (e.length < 15) {
-      setPhoneNumber(e);
-    } else {
-      return;
-    }
-  };
+  // const handlePhoneNumber = (e: string) => {
+  //   if (e.length < 15) {
+  //     setPhoneNumber(e);
+  //   } else {
+  //     return;
+  //   }
+  // };
 
   const getPayment = async () => {
     try {
@@ -71,6 +82,22 @@ export default function Payments() {
       setLoading(false);
     }
   };
+
+  const getDetailStudent = async () => {
+    setLoading(true);
+    try {
+      const { data } = await axios.get(
+        `${import.meta.env.VITE_API_URL}/student/${noInduk}`
+      );
+      setStudentDetail(data.data);
+      console.log(data);
+      setLoading(false);
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     getPayment();
   }, [q]);
@@ -78,6 +105,7 @@ export default function Payments() {
   useEffect(() => {
     if (noInduk) {
       getDetailPayment();
+      getDetailStudent();
     }
   }, [noInduk]);
   console.log(detailPayment);
@@ -198,6 +226,7 @@ export default function Payments() {
           </div>
         </div>
       </div>
+
       {/* detail */}
 
       <div
@@ -216,7 +245,14 @@ export default function Payments() {
             <div className="w-full h-36 bg-[url(/space.jpg)] p-5 mb-2 rounded-lg">
               <div className="flex h-full items-center gap-5 text-white">
                 <div className="w-16 h-16 rounded-full flex justify-center items-center bg-blue-700 text-white">
-                  {detailPayment?.nama.charAt(0).toUpperCase()}
+                  {studentdetail?.pasPhoto ? (
+                    <img
+                      src={studentdetail?.pasPhoto}
+                      className="w-full h-full object-cover rounded-full"
+                    />
+                  ) : (
+                    studentdetail?.nama?.charAt(0).toUpperCase()
+                  )}
                 </div>
                 <div className="flex flex-col gap-2">
                   <p className="text-xl">{detailPayment?.nama}</p>
@@ -226,16 +262,36 @@ export default function Payments() {
             </div>
             <div className="p-4 bg-white rounded-lg overflow-auto">
               <div className="w-full flex items-center justify-end mb-3">
-                <Checkbox
-                  isSelected={isEdit}
-                  checked={isEdit}
-                  onValueChange={setIsEdit}
-                >
-                  Edit Field
-                </Checkbox>
+                {selection === TabsMenu.DETAIL && (
+                  <Checkbox
+                    isSelected={isEdit}
+                    checked={isEdit}
+                    onValueChange={setIsEdit}
+                  >
+                    Edit Field
+                  </Checkbox>
+                )}
               </div>
-              <Form className="border rounded-lg p-3" onSubmit={onSubmit}>
-                {/* <div className="w-full flex gap-3 justify-between items-center">
+              <div>
+                {detailPayment?.instalment && (
+                  <div className="flex flex-col items-center w-full">
+                    <Tabs
+                      className="w-full"
+                      size="sm"
+                      color="primary"
+                      selectedKey={selection}
+                      onSelectionChange={(e) => setSelection(e as TabsMenu)}
+                    >
+                      <Tab
+                        className="w-full"
+                        key={TabsMenu.DETAIL}
+                        title={TabsMenu.DETAIL}
+                      >
+                        <Form
+                          className="border rounded-lg p-3 mt-3"
+                          onSubmit={onSubmit}
+                        >
+                          {/* <div className="w-full flex gap-3 justify-between items-center">
                   <Input
                     isRequired
                     errorMessage="Please enter a valid username"
@@ -265,60 +321,60 @@ export default function Payments() {
                   />
                 </div> */}
 
-                {/* <div className="w-full flex gap-3 justify-between items-center"> */}
-                <NumberInput
-                  isRequired
-                  errorMessage="Pastikan Anual Fee terisi"
-                  label="Anual Fee"
-                  labelPlacement="outside"
-                  name="anualFee"
-                  defaultValue={detailPayment?.anualFee}
-                  // placeholder="Masukan Nama Ayah"
-                  //   defaultValue={"Pardi"}
-                  //   classNames={styledInput}
-                  variant={isEdit ? "bordered" : "faded"}
-                  disabled={!isEdit}
-                />
-                <NumberInput
-                  isRequired
-                  errorMessage="Pastikan Tuition Fee Terisi"
-                  label="Tuition Fee"
-                  labelPlacement="outside"
-                  name="tuitionFee"
-                  // placeholder="Masukan Nama Ibu"
-                  defaultValue={detailPayment?.tuitionFee}
-                  //   classNames={styledInput}
-                  variant={isEdit ? "bordered" : "faded"}
-                  disabled={!isEdit}
-                />
-                {/* </div> */}
+                          {/* <div className="w-full flex gap-3 justify-between items-center"> */}
+                          <NumberInput
+                            isRequired
+                            errorMessage="Pastikan Anual Fee terisi"
+                            label="Anual Fee"
+                            labelPlacement="outside"
+                            name="anualFee"
+                            defaultValue={detailPayment?.anualFee}
+                            // placeholder="Masukan Nama Ayah"
+                            //   defaultValue={"Pardi"}
+                            //   classNames={styledInput}
+                            variant={isEdit ? "bordered" : "faded"}
+                            disabled={!isEdit}
+                          />
+                          <NumberInput
+                            isRequired
+                            errorMessage="Pastikan Tuition Fee Terisi"
+                            label="Tuition Fee"
+                            labelPlacement="outside"
+                            name="tuitionFee"
+                            // placeholder="Masukan Nama Ibu"
+                            defaultValue={detailPayment?.tuitionFee}
+                            //   classNames={styledInput}
+                            variant={isEdit ? "bordered" : "faded"}
+                            disabled={!isEdit}
+                          />
+                          {/* </div> */}
 
-                {/* <div className="w-full flex gap-3 justify-between items-center"> */}
-                <NumberInput
-                  isRequired
-                  errorMessage="Pastikan Registration Fee Terisi"
-                  label="Registration Fee"
-                  labelPlacement="outside"
-                  name="registrationFee"
-                  // placeholder="Masukan Nama Ibu"
-                  defaultValue={detailPayment?.registrationFee}
-                  //   classNames={styledInput}
-                  variant={isEdit ? "bordered" : "faded"}
-                  disabled={!isEdit}
-                />
-                <NumberInput
-                  isRequired
-                  errorMessage="Pastikan Uniform Fee Terisi"
-                  label="Uniform Fee"
-                  labelPlacement="outside"
-                  name="uniformFee"
-                  // placeholder="Masukan Nama Ibu"
-                  defaultValue={detailPayment?.uniformFee}
-                  //   classNames={styledInput}
-                  variant={isEdit ? "bordered" : "faded"}
-                  disabled={!isEdit}
-                />
-                {/* <Input
+                          {/* <div className="w-full flex gap-3 justify-between items-center"> */}
+                          <NumberInput
+                            isRequired
+                            errorMessage="Pastikan Registration Fee Terisi"
+                            label="Registration Fee"
+                            labelPlacement="outside"
+                            name="registrationFee"
+                            // placeholder="Masukan Nama Ibu"
+                            defaultValue={detailPayment?.registrationFee}
+                            //   classNames={styledInput}
+                            variant={isEdit ? "bordered" : "faded"}
+                            disabled={!isEdit}
+                          />
+                          <NumberInput
+                            isRequired
+                            errorMessage="Pastikan Uniform Fee Terisi"
+                            label="Uniform Fee"
+                            labelPlacement="outside"
+                            name="uniformFee"
+                            // placeholder="Masukan Nama Ibu"
+                            defaultValue={detailPayment?.uniformFee}
+                            //   classNames={styledInput}
+                            variant={isEdit ? "bordered" : "faded"}
+                            disabled={!isEdit}
+                          />
+                          {/* <Input
                           label="Nama Ayah"
                           name="namaAyah"
                           labelPlacement="outside"
@@ -334,10 +390,10 @@ export default function Payments() {
                           variant={isEdit ? "bordered" : "faded"}
                           disabled={!isEdit}
                         /> */}
-                {/* </div> */}
+                          {/* </div> */}
 
-                <div className="w-full flex gap-3 justify-between items-center">
-                  {/* <Input
+                          <div className="w-full flex gap-3 justify-between items-center">
+                            {/* <Input
                     isRequired
                     errorMessage="Pastikan Tahun Ajaran Terisi"
                     label="Tahun Ajaran"
@@ -349,7 +405,7 @@ export default function Payments() {
                     variant={isEdit ? "bordered" : "faded"}
                     disabled={!isEdit}
                   /> */}
-                  {/* <Input
+                            {/* <Input
                     label="Link Registrarion"
                     labelPlacement="outside"
                     disabled
@@ -357,7 +413,7 @@ export default function Payments() {
                     variant="bordered"
                   /> */}
 
-                  {/* <Input
+                            {/* <Input
                           label="Jenis Kelamin"
                           name="gender"
                           labelPlacement="outside"
@@ -371,15 +427,46 @@ export default function Payments() {
                           // className="w-1/2"
                           disabled={!isEdit}
                         /> */}
-                </div>
-                {isEdit && (
-                  <div className="mt-3 w-full flex justify-end">
-                    <Button type="submit" color="primary">
-                      Submit
-                    </Button>
+                          </div>
+                          {isEdit && (
+                            <div className="mt-3 w-full flex justify-end">
+                              <Button type="submit" color="primary">
+                                Submit
+                              </Button>
+                            </div>
+                          )}
+                        </Form>
+                      </Tab>
+                      <Tab
+                        className="w-full"
+                        key={TabsMenu.INSTALMENT}
+                        title={TabsMenu.INSTALMENT}
+                      >
+                        {detailPayment?.instalment?.length === 0 ? (
+                          <p>No Data</p>
+                        ) : (
+                          <Table>
+                            <TableHeader>
+                              <TableColumn>IntalmentFee</TableColumn>
+                              <TableColumn>Created At</TableColumn>
+                            </TableHeader>
+                            <TableBody>
+                              {detailPayment?.instalment.map((ins, i) => (
+                                <TableRow key={i}>
+                                  <TableCell>{ins.paymentFee}</TableCell>
+                                  <TableCell>
+                                    {formatDate(new Date(ins.createdDate))}
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        )}
+                      </Tab>
+                    </Tabs>
                   </div>
                 )}
-              </Form>
+              </div>
             </div>
           </>
         )}

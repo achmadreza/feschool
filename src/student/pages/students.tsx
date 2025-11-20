@@ -17,6 +17,7 @@ import {
   DatePicker,
   SelectItem,
   Select,
+  DateInput,
   // DatePicker,
   // type DateInputValue,
   // DateInput,
@@ -30,7 +31,11 @@ import {
 } from "@heroui/dropdown";
 
 import { MdClose, MdMoreHoriz } from "react-icons/md";
-import { parseDate, type DateValue } from "@internationalized/date";
+import {
+  CalendarDate,
+  parseDate,
+  type DateValue,
+} from "@internationalized/date";
 import { toast } from "react-toastify";
 import { jenisKelamin, kelas } from "../../shared/studentEnum";
 
@@ -277,22 +282,41 @@ export default function Students() {
                     variant={isEdit ? "bordered" : "faded"}
                     disabled={!isEdit}
                   />
-                  <DatePicker
-                    labelPlacement="outside"
-                    label={"Tanggal Lahir"}
-                    name="tanggalLahir"
-                    // selectorButtonPlacement="start"
-                    defaultValue={
-                      detailStudent?.tanggalLahir
-                        ? parseDate(detailStudent?.tanggalLahir.split("T")[0])
-                        : (parseDate(defaultBirthDay) as DateValue)
-                    }
-                    variant={isEdit ? "bordered" : "faded"}
-                    disabled={!isEdit}
-                    selectorButtonPlacement="start"
-                    showMonthAndYearPickers
-                    // showMonthAndYearPickers
-                  />
+
+                  {isEdit ? (
+                    <DatePicker
+                      labelPlacement="outside"
+                      label={"Tanggal Lahir"}
+                      name="tanggalLahir"
+                      // selectorButtonPlacement="start"
+                      // defaultValue={
+                      //   detailStudent?.tanggalLahir
+                      //     ? (parseDate(
+                      //         detailStudent?.tanggalLahir.split("T")[0]
+                      //       ) as unknown as DateValue)
+                      //     : (parseDate(defaultBirthDay) as unknown as DateValue)
+                      // }
+                      variant={isEdit ? "bordered" : "faded"}
+                      // disabled={!isEdit}
+                      isRequired
+                      selectorButtonPlacement="start"
+                      showMonthAndYearPickers
+                      // showMonthAndYearPickers
+                    />
+                  ) : (
+                    <Input
+                      defaultValue={
+                        detailStudent &&
+                        parseDate(
+                          detailStudent?.tanggalLahir.split("T")[0]
+                        ).toString()
+                      }
+                      label={"Tanggal Lahir"}
+                      name="tanggalLahir"
+                      labelPlacement="outside"
+                      disabled={!isEdit}
+                    />
+                  )}
                 </div>
                 <div className="w-full flex gap-3 justify-between items-center">
                   <Input

@@ -9,5 +9,14 @@ export interface GetPayments {
   uniformFee: number;
   paymentPhoto: string;
   createdDate: string;
+  instalment: instalment[];
   __v: number;
+}
+
+interface instalment {
+  _id: string;
+  id: string;
+  paymentId: string;
+  paymentFee: number;
+  createdDate: Date;
 }
