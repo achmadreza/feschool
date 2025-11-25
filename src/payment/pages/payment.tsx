@@ -7,6 +7,11 @@ import {
   DropdownTrigger,
   Form,
   Input,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
   NumberInput,
   Tab,
   Table,
@@ -16,6 +21,7 @@ import {
   TableHeader,
   TableRow,
   Tabs,
+  useDisclosure,
 } from "@heroui/react";
 import axios from "axios";
 import { useEffect, useState, type FormEvent } from "react";
@@ -41,9 +47,13 @@ export default function Payments() {
   const navigate = useNavigate();
   const { noInduk } = useParams();
   const [isEdit, setIsEdit] = useState(false);
-  // const [success, setSuccess] = useState(false);
+  const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [loadingInstalment, setLoadingInstalment] = useState(false);
   const [selection, setSelection] = useState<TabsMenu>(TabsMenu.DETAIL);
+  const [openAddInstalment, setOpenInstalment] = useState(false);
+  const [paymentFee, setPaymnetFee] = useState("");
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const handleCloseDetail = () => {
     navigate("/dashboard/payments/");
@@ -75,7 +85,7 @@ export default function Payments() {
         `${import.meta.env.VITE_API_URL}/payment/${noInduk}`
       );
       setDetailPayment(data.data);
-      console.log(data);
+      // console.log(data);
       setLoading(false);
     } catch (error) {
       console.log(error);
@@ -90,7 +100,7 @@ export default function Payments() {
         `${import.meta.env.VITE_API_URL}/student/${noInduk}`
       );
       setStudentDetail(data.data);
-      console.log(data);
+      // console.log(data);
       setLoading(false);
     } catch (error) {
       console.log(error);
@@ -100,15 +110,15 @@ export default function Payments() {
 
   useEffect(() => {
     getPayment();
-  }, [q]);
+  }, [q, success]);
 
   useEffect(() => {
     if (noInduk) {
       getDetailPayment();
       getDetailStudent();
     }
-  }, [noInduk]);
-  console.log(detailPayment);
+  }, [noInduk, success]);
+  // console.log(detailPayment);
 
   const generateLink = async (noInduk: number) => {
     try {
@@ -126,6 +136,39 @@ export default function Payments() {
     }
   };
 
+  const handleAddInstalment = async () => {
+    if (paymentFee === "" || +paymentFee === 0) {
+      toast.error("Instalment fee harus diisi");
+      return;
+    }
+    setLoadingInstalment(true);
+    try {
+      const { data } = await axios.post(
+        `${import.meta.env.VITE_API_URL}/payment/instalment/${
+          detailPayment.id
+        }`,
+        {
+          paymentFee,
+        }
+      );
+      console.log(data.message);
+      if (data.data) {
+        toast.success(data?.message);
+        setLoadingInstalment(false);
+        setSuccess((prev) => !prev);
+        onOpenChange();
+        setPaymnetFee("");
+      }
+    } catch (err) {
+      setLoadingInstalment(false);
+      if (axios.isAxiosError(err)) {
+        toast.error(err.response?.data.message);
+      } else {
+        toast.error("internal server error");
+      }
+    }
+  };
+
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -134,164 +177,211 @@ export default function Payments() {
   };
 
   return (
-    <div className="w-full h-full flex gap-3">
-      <div className="flex-1 bg-white rounded-lg p-5">
-        <h2 className="text-2xl capitalize">Payment</h2>
-        <div className="flex justify-between items-center">
-          <div className="w-52 mt-3">
-            <Input
-              variant="bordered"
-              value={q}
-              onValueChange={setQ}
-              placeholder="Pencarian by nama"
-            />
-          </div>
-          <Button
-            onPress={() => navigate("/dashboard/payments/add")}
-            className="flex items-center gap-2 bg-gray-900 text-white"
-          >
-            <MdSchool /> Add Student
-          </Button>
-        </div>
-        <div className="mt-5 flex">
-          <div className="flex-1">
-            <Table
-              aria-label="Student collection table"
-              //    bottomContent={
-              //   students.length > 0 ? (
-              //     <div className="flex w-full justify-center">
-              //       <Pagination
-              //         isCompact
-              //         showControls
-              //         showShadow
-              //         color="primary"
-              //         page={1}
-              //         total={1}
-              //         onChange={(page) => setPage(page)}
-              //       />
-              //     </div>
-              //   ) : null
-              // }
+    <>
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader>Add Instalment</ModalHeader>
+
+              <ModalBody>
+                <Input
+                  label={"Instalment Fee"}
+                  labelPlacement="outside"
+                  isRequired
+                  required
+                  value={paymentFee}
+                  onValueChange={(e) => setPaymnetFee(e.replace(/[^0-9]/g, ""))}
+                />
+              </ModalBody>
+              <ModalFooter>
+                <Button color="danger" onPress={onClose}>
+                  Cancel
+                </Button>
+                <Button
+                  isDisabled={loadingInstalment}
+                  color="primary"
+                  onPress={handleAddInstalment}
+                >
+                  submit
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+
+      <div className="w-full h-full flex gap-3">
+        <div className="flex-1 bg-white rounded-lg p-5">
+          <h2 className="text-2xl capitalize">Payment</h2>
+          <div className="flex justify-between items-center">
+            <div className="w-52 mt-3">
+              <Input
+                variant="bordered"
+                value={q}
+                onValueChange={setQ}
+                placeholder="Pencarian by nama"
+              />
+            </div>
+            <Button
+              onPress={() => navigate("/dashboard/payments/add")}
+              className="flex items-center gap-2 bg-gray-900 text-white"
             >
-              <TableHeader>
-                <TableColumn>Nomor Induk</TableColumn>
-                <TableColumn>Nama</TableColumn>
-                <TableColumn>Annual fee</TableColumn>
-                <TableColumn>Tuition fee</TableColumn>
-                <TableColumn>Registration fee</TableColumn>
-                <TableColumn>Uniform fee</TableColumn>
-                <TableColumn> </TableColumn>
-              </TableHeader>
-              <TableBody>
-                {payments?.map((s, i) => {
-                  return (
-                    <TableRow key={i}>
-                      <TableCell>{s.nomorInduk}</TableCell>
-                      <TableCell>{s.nama}</TableCell>
-                      <TableCell>{formatCurrency(s.anualFee)}</TableCell>
-                      <TableCell>{formatCurrency(s.tuitionFee)}</TableCell>
-                      <TableCell>{formatCurrency(s.registrationFee)}</TableCell>
-                      <TableCell>{formatCurrency(s.uniformFee)}</TableCell>
-                      <TableCell>
-                        <Dropdown>
-                          <DropdownTrigger className="w-full">
-                            <MdMoreHoriz />
-                          </DropdownTrigger>
-                          <DropdownMenu>
-                            <DropdownItem
-                              key={"detail"}
-                              className="flex items-center gap-2 text-green-500"
-                              onClick={() =>
-                                navigate(`/dashboard/payments/${s.nomorInduk}`)
-                              }
-                            >
-                              Detail
-                            </DropdownItem>
-                            <DropdownItem
-                              key={"link"}
-                              onClick={() => generateLink(s.nomorInduk)}
-                            >
-                              <div className="w-fit flex items-end gap-1 text-blue-400 underline cursor-pointer">
-                                <MdLink size={16} /> Generate Lnik Registrasi
-                              </div>
-                            </DropdownItem>
-                          </DropdownMenu>
-                        </Dropdown>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
+              <MdSchool /> Add Student
+            </Button>
+          </div>
+          <div className="mt-5 flex">
+            <div className="flex-1">
+              <Table
+                aria-label="Student collection table"
+                //    bottomContent={
+                //   students.length > 0 ? (
+                //     <div className="flex w-full justify-center">
+                //       <Pagination
+                //         isCompact
+                //         showControls
+                //         showShadow
+                //         color="primary"
+                //         page={1}
+                //         total={1}
+                //         onChange={(page) => setPage(page)}
+                //       />
+                //     </div>
+                //   ) : null
+                // }
+              >
+                <TableHeader>
+                  <TableColumn>Nomor Induk</TableColumn>
+                  <TableColumn>Nama</TableColumn>
+                  <TableColumn>Registration fee</TableColumn>
+                  <TableColumn>Annual fee</TableColumn>
+                  <TableColumn>Tuition fee</TableColumn>
+                  <TableColumn>Uniform fee</TableColumn>
+                  <TableColumn> </TableColumn>
+                </TableHeader>
+                <TableBody>
+                  {payments?.map((s, i) => {
+                    return (
+                      <TableRow key={i}>
+                        <TableCell>{s.nomorInduk}</TableCell>
+                        <TableCell>{s.nama}</TableCell>
+                        <TableCell>
+                          {formatCurrency(s.registrationFee)}
+                        </TableCell>
+                        <TableCell>{formatCurrency(s.anualFee)}</TableCell>
+                        <TableCell>{formatCurrency(s.tuitionFee)}</TableCell>
+                        <TableCell>{formatCurrency(s.uniformFee)}</TableCell>
+                        <TableCell>
+                          <Dropdown>
+                            <DropdownTrigger className="w-full">
+                              <MdMoreHoriz />
+                            </DropdownTrigger>
+                            <DropdownMenu>
+                              <DropdownItem
+                                key={"detail"}
+                                className="flex items-center gap-2 text-green-500"
+                                onClick={() =>
+                                  navigate(
+                                    `/dashboard/payments/${s.nomorInduk}`
+                                  )
+                                }
+                              >
+                                Detail
+                              </DropdownItem>
+                              <DropdownItem
+                                key={"link"}
+                                onClick={() => generateLink(s.nomorInduk)}
+                              >
+                                <div className="w-fit flex items-end gap-1 text-blue-400 underline cursor-pointer">
+                                  <MdLink size={16} /> Generate Lnik Registrasi
+                                </div>
+                              </DropdownItem>
+                            </DropdownMenu>
+                          </Dropdown>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* detail */}
+        {/* detail */}
 
-      <div
-        className={`${
-          noInduk ? "w-3/4  visible " : "invisible w-0 overflow-hidden"
-        } h-full relative  rounded-lg transition-all duration-700`}
-      >
         <div
-          className="absolute top-0 right-0 text-lg text-white cursor-pointer"
-          onClick={handleCloseDetail}
+          className={`${
+            noInduk ? "w-3/4  visible " : "invisible w-0 overflow-hidden"
+          } h-full relative  rounded-lg transition-all duration-700`}
         >
-          <MdClose />
-        </div>
-        {!loading && (
-          <>
-            <div className="w-full h-36 bg-[url(/space.jpg)] p-5 mb-2 rounded-lg">
-              <div className="flex h-full items-center gap-5 text-white">
-                <div className="w-16 h-16 rounded-full flex justify-center items-center bg-blue-700 text-white">
-                  {studentdetail?.pasPhoto ? (
-                    <img
-                      src={studentdetail?.pasPhoto}
-                      className="w-full h-full object-cover rounded-full"
-                    />
+          <div
+            className="absolute top-0 right-0 text-lg text-white cursor-pointer"
+            onClick={handleCloseDetail}
+          >
+            <MdClose />
+          </div>
+          {!loading && (
+            <>
+              <div className="w-full h-36 bg-[url(/space.jpg)] p-5 mb-2 rounded-lg">
+                <div className="flex h-full items-center gap-5 text-white">
+                  <div className="w-16 h-16 rounded-full flex justify-center items-center bg-blue-700 text-white">
+                    {studentdetail?.pasPhoto ? (
+                      <img
+                        src={studentdetail?.pasPhoto}
+                        className="w-full h-full object-cover rounded-full"
+                      />
+                    ) : (
+                      studentdetail?.nama?.charAt(0).toUpperCase()
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <p className="text-xl">{detailPayment?.nama}</p>
+                    <p className="text-white text-sm">{noInduk}</p>
+                  </div>
+                </div>
+              </div>
+              <div className="p-4 bg-white rounded-lg overflow-auto">
+                <div className="w-full flex items-center justify-end mb-3">
+                  {selection === TabsMenu.DETAIL ? (
+                    <Checkbox
+                      isSelected={isEdit}
+                      checked={isEdit}
+                      onValueChange={setIsEdit}
+                    >
+                      Edit Field
+                    </Checkbox>
                   ) : (
-                    studentdetail?.nama?.charAt(0).toUpperCase()
+                    <Button
+                      color="success"
+                      size="sm"
+                      onPress={onOpen}
+                      className="text-white"
+                    >
+                      Add Instalment
+                    </Button>
                   )}
                 </div>
-                <div className="flex flex-col gap-2">
-                  <p className="text-xl">{detailPayment?.nama}</p>
-                  <p className="text-white text-sm">{noInduk}</p>
-                </div>
-              </div>
-            </div>
-            <div className="p-4 bg-white rounded-lg overflow-auto">
-              <div className="w-full flex items-center justify-end mb-3">
-                {selection === TabsMenu.DETAIL && (
-                  <Checkbox
-                    isSelected={isEdit}
-                    checked={isEdit}
-                    onValueChange={setIsEdit}
-                  >
-                    Edit Field
-                  </Checkbox>
-                )}
-              </div>
-              <div>
-                {detailPayment?.instalment && (
-                  <div className="flex flex-col items-center w-full">
-                    <Tabs
-                      className="w-full"
-                      size="sm"
-                      color="primary"
-                      selectedKey={selection}
-                      onSelectionChange={(e) => setSelection(e as TabsMenu)}
-                    >
-                      <Tab
+                <div>
+                  {detailPayment?.instalment && (
+                    <div className="flex flex-col items-center w-full">
+                      <Tabs
                         className="w-full"
-                        key={TabsMenu.DETAIL}
-                        title={TabsMenu.DETAIL}
+                        size="sm"
+                        color="primary"
+                        selectedKey={selection}
+                        onSelectionChange={(e) => setSelection(e as TabsMenu)}
                       >
-                        <Form
-                          className="border rounded-lg p-3 mt-3"
-                          onSubmit={onSubmit}
+                        <Tab
+                          className="w-full"
+                          key={TabsMenu.DETAIL}
+                          title={TabsMenu.DETAIL}
                         >
-                          {/* <div className="w-full flex gap-3 justify-between items-center">
+                          <Form
+                            className="border rounded-lg p-3 mt-3"
+                            onSubmit={onSubmit}
+                          >
+                            {/* <div className="w-full flex gap-3 justify-between items-center">
                   <Input
                     isRequired
                     errorMessage="Please enter a valid username"
@@ -321,60 +411,60 @@ export default function Payments() {
                   />
                 </div> */}
 
-                          {/* <div className="w-full flex gap-3 justify-between items-center"> */}
-                          <NumberInput
-                            isRequired
-                            errorMessage="Pastikan Anual Fee terisi"
-                            label="Anual Fee"
-                            labelPlacement="outside"
-                            name="anualFee"
-                            defaultValue={detailPayment?.anualFee}
-                            // placeholder="Masukan Nama Ayah"
-                            //   defaultValue={"Pardi"}
-                            //   classNames={styledInput}
-                            variant={isEdit ? "bordered" : "faded"}
-                            disabled={!isEdit}
-                          />
-                          <NumberInput
-                            isRequired
-                            errorMessage="Pastikan Tuition Fee Terisi"
-                            label="Tuition Fee"
-                            labelPlacement="outside"
-                            name="tuitionFee"
-                            // placeholder="Masukan Nama Ibu"
-                            defaultValue={detailPayment?.tuitionFee}
-                            //   classNames={styledInput}
-                            variant={isEdit ? "bordered" : "faded"}
-                            disabled={!isEdit}
-                          />
-                          {/* </div> */}
+                            {/* <div className="w-full flex gap-3 justify-between items-center"> */}
+                            <NumberInput
+                              isRequired
+                              errorMessage="Pastikan Anual Fee terisi"
+                              label="Anual Fee"
+                              labelPlacement="outside"
+                              name="anualFee"
+                              defaultValue={detailPayment?.anualFee}
+                              // placeholder="Masukan Nama Ayah"
+                              //   defaultValue={"Pardi"}
+                              //   classNames={styledInput}
+                              variant={isEdit ? "bordered" : "faded"}
+                              disabled={!isEdit}
+                            />
+                            <NumberInput
+                              isRequired
+                              errorMessage="Pastikan Tuition Fee Terisi"
+                              label="Tuition Fee"
+                              labelPlacement="outside"
+                              name="tuitionFee"
+                              // placeholder="Masukan Nama Ibu"
+                              defaultValue={detailPayment?.tuitionFee}
+                              //   classNames={styledInput}
+                              variant={isEdit ? "bordered" : "faded"}
+                              disabled={!isEdit}
+                            />
+                            {/* </div> */}
 
-                          {/* <div className="w-full flex gap-3 justify-between items-center"> */}
-                          <NumberInput
-                            isRequired
-                            errorMessage="Pastikan Registration Fee Terisi"
-                            label="Registration Fee"
-                            labelPlacement="outside"
-                            name="registrationFee"
-                            // placeholder="Masukan Nama Ibu"
-                            defaultValue={detailPayment?.registrationFee}
-                            //   classNames={styledInput}
-                            variant={isEdit ? "bordered" : "faded"}
-                            disabled={!isEdit}
-                          />
-                          <NumberInput
-                            isRequired
-                            errorMessage="Pastikan Uniform Fee Terisi"
-                            label="Uniform Fee"
-                            labelPlacement="outside"
-                            name="uniformFee"
-                            // placeholder="Masukan Nama Ibu"
-                            defaultValue={detailPayment?.uniformFee}
-                            //   classNames={styledInput}
-                            variant={isEdit ? "bordered" : "faded"}
-                            disabled={!isEdit}
-                          />
-                          {/* <Input
+                            {/* <div className="w-full flex gap-3 justify-between items-center"> */}
+                            <NumberInput
+                              isRequired
+                              errorMessage="Pastikan Registration Fee Terisi"
+                              label="Registration Fee"
+                              labelPlacement="outside"
+                              name="registrationFee"
+                              // placeholder="Masukan Nama Ibu"
+                              defaultValue={detailPayment?.registrationFee}
+                              //   classNames={styledInput}
+                              variant={isEdit ? "bordered" : "faded"}
+                              disabled={!isEdit}
+                            />
+                            <NumberInput
+                              isRequired
+                              errorMessage="Pastikan Uniform Fee Terisi"
+                              label="Uniform Fee"
+                              labelPlacement="outside"
+                              name="uniformFee"
+                              // placeholder="Masukan Nama Ibu"
+                              defaultValue={detailPayment?.uniformFee}
+                              //   classNames={styledInput}
+                              variant={isEdit ? "bordered" : "faded"}
+                              disabled={!isEdit}
+                            />
+                            {/* <Input
                           label="Nama Ayah"
                           name="namaAyah"
                           labelPlacement="outside"
@@ -390,10 +480,10 @@ export default function Payments() {
                           variant={isEdit ? "bordered" : "faded"}
                           disabled={!isEdit}
                         /> */}
-                          {/* </div> */}
+                            {/* </div> */}
 
-                          <div className="w-full flex gap-3 justify-between items-center">
-                            {/* <Input
+                            <div className="w-full flex gap-3 justify-between items-center">
+                              {/* <Input
                     isRequired
                     errorMessage="Pastikan Tahun Ajaran Terisi"
                     label="Tahun Ajaran"
@@ -405,7 +495,7 @@ export default function Payments() {
                     variant={isEdit ? "bordered" : "faded"}
                     disabled={!isEdit}
                   /> */}
-                            {/* <Input
+                              {/* <Input
                     label="Link Registrarion"
                     labelPlacement="outside"
                     disabled
@@ -413,7 +503,7 @@ export default function Payments() {
                     variant="bordered"
                   /> */}
 
-                            {/* <Input
+                              {/* <Input
                           label="Jenis Kelamin"
                           name="gender"
                           labelPlacement="outside"
@@ -427,50 +517,51 @@ export default function Payments() {
                           // className="w-1/2"
                           disabled={!isEdit}
                         /> */}
-                          </div>
-                          {isEdit && (
-                            <div className="mt-3 w-full flex justify-end">
-                              <Button type="submit" color="primary">
-                                Submit
-                              </Button>
                             </div>
+                            {isEdit && (
+                              <div className="mt-3 w-full flex justify-end">
+                                <Button type="submit" color="primary">
+                                  Submit
+                                </Button>
+                              </div>
+                            )}
+                          </Form>
+                        </Tab>
+                        <Tab
+                          className="w-full"
+                          key={TabsMenu.INSTALMENT}
+                          title={TabsMenu.INSTALMENT}
+                        >
+                          {detailPayment?.instalment?.length === 0 ? (
+                            <p>No Data</p>
+                          ) : (
+                            <Table>
+                              <TableHeader>
+                                <TableColumn>IntalmentFee</TableColumn>
+                                <TableColumn>Created At</TableColumn>
+                              </TableHeader>
+                              <TableBody>
+                                {detailPayment?.instalment.map((ins, i) => (
+                                  <TableRow key={i}>
+                                    <TableCell>{ins.paymentFee}</TableCell>
+                                    <TableCell>
+                                      {formatDate(new Date(ins.createdDate))}
+                                    </TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
                           )}
-                        </Form>
-                      </Tab>
-                      <Tab
-                        className="w-full"
-                        key={TabsMenu.INSTALMENT}
-                        title={TabsMenu.INSTALMENT}
-                      >
-                        {detailPayment?.instalment?.length === 0 ? (
-                          <p>No Data</p>
-                        ) : (
-                          <Table>
-                            <TableHeader>
-                              <TableColumn>IntalmentFee</TableColumn>
-                              <TableColumn>Created At</TableColumn>
-                            </TableHeader>
-                            <TableBody>
-                              {detailPayment?.instalment.map((ins, i) => (
-                                <TableRow key={i}>
-                                  <TableCell>{ins.paymentFee}</TableCell>
-                                  <TableCell>
-                                    {formatDate(new Date(ins.createdDate))}
-                                  </TableCell>
-                                </TableRow>
-                              ))}
-                            </TableBody>
-                          </Table>
-                        )}
-                      </Tab>
-                    </Tabs>
-                  </div>
-                )}
+                        </Tab>
+                      </Tabs>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          </>
-        )}
+            </>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }

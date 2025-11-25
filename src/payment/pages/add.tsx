@@ -5,9 +5,19 @@ import { Input } from "@heroui/input";
 import axios from "axios";
 import { useState, type ChangeEvent, type FormEvent } from "react";
 import { toast } from "react-toastify";
+import { Checkbox } from "@heroui/react";
+
+const instalmentPaymentItems = {
+  tuitionFee: 0,
+  anualFee: 0,
+  registrationFee: 0,
+  uniformFee: 0,
+};
 
 export default function Add() {
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [isInstalment, setIsInstament] = useState(false);
+  const [instalmentFee, setInstalmentFee] = useState("");
   const [paymentItems, setPaymentItems] = useState({
     tuitionFee: "",
     anualFee: "",
@@ -27,25 +37,46 @@ export default function Add() {
     const { name, value } = e.target;
     setPaymentItems({ ...paymentItems, [name]: value.replace(/[^0-9]/g, "") });
   };
+  const handleInstalmentFee = (e: ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    setInstalmentFee(value.replace(/[^0-9]/g, ""));
+  };
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const data = Object.fromEntries(new FormData(e.currentTarget));
     console.log(data);
-    const { tuitionFee, anualFee, registrationFee, uniformFee, ...etc } = data;
+    const {
+      tuitionFee,
+      anualFee,
+      registrationFee,
+      uniformFee,
+      paymentFee,
+      ...etc
+    } = data;
     console.log(etc, "etc");
 
     try {
       const { data: dataRes } = await axios.post(
         `${import.meta.env.VITE_API_URL}/payment`,
-        {
-          tuitionFee: +tuitionFee,
-          anualFee: +anualFee,
-          registrationFee: +registrationFee,
-          uniformFee: +uniformFee,
-          ...etc,
-        }
+        isInstalment
+          ? {
+              tuitionFee: instalmentPaymentItems.tuitionFee,
+              anualFee: instalmentPaymentItems.anualFee,
+              registrationFee: instalmentPaymentItems.registrationFee,
+              uniformFee: instalmentPaymentItems.uniformFee,
+              paymentFee: +paymentFee,
+              isInstalment,
+              ...etc,
+            }
+          : {
+              tuitionFee: +tuitionFee,
+              anualFee: +anualFee,
+              registrationFee: +registrationFee,
+              uniformFee: +uniformFee,
+              ...etc,
+            }
       );
       toast.success(dataRes.message);
       setRegistrationLink(dataRes.url);
@@ -60,6 +91,11 @@ export default function Add() {
   return (
     <div className="bg-white p-5 rounded-lg">
       <h2>Add Student</h2>
+      <div className="flex w-1/2 justify-end">
+        <Checkbox isSelected={isInstalment} onValueChange={setIsInstament}>
+          Instalment
+        </Checkbox>
+      </div>
       <Form
         className="w-1/2 flex flex-col flex-wrap gap-6  p-4 rounded-xl"
         onSubmit={onSubmit}
@@ -116,60 +152,78 @@ export default function Add() {
           variant="bordered"
         />
 
-        <Input
-          isRequired
-          errorMessage="Pastikan Registration Fee Terisi"
-          label="Registration Fee"
-          labelPlacement="outside"
-          name="registrationFee"
-          placeholder="Registration Fee"
-          //   defaultValue={"Surti"}
-          //   classNames={styledInput}
-          onChange={handlePaymentItems}
-          value={paymentItems.registrationFee}
-          variant="bordered"
-        />
+        {isInstalment ? (
+          <Input
+            isRequired
+            errorMessage="Pastikan Registration Fee Terisi"
+            label="Instalment Fee"
+            labelPlacement="outside"
+            name="paymentFee"
+            placeholder="Instalment Fee"
+            //   defaultValue={"Surti"}
+            //   classNames={styledInput}
+            onChange={handleInstalmentFee}
+            value={instalmentFee}
+            variant="bordered"
+          />
+        ) : (
+          <>
+            <Input
+              isRequired
+              errorMessage="Pastikan Registration Fee Terisi"
+              label="Registration Fee"
+              labelPlacement="outside"
+              name="registrationFee"
+              placeholder="Registration Fee"
+              //   defaultValue={"Surti"}
+              //   classNames={styledInput}
+              onChange={handlePaymentItems}
+              value={paymentItems.registrationFee}
+              variant="bordered"
+            />
 
-        <Input
-          isRequired
-          errorMessage="Pastikan Anual Fee terisi"
-          label="Anual Fee"
-          labelPlacement="outside"
-          name="anualFee"
-          placeholder="Anuall Fee"
-          //   defaultValue={"Pardi"}
-          //   classNames={styledInput}
-          onChange={handlePaymentItems}
-          value={paymentItems.anualFee}
-          variant="bordered"
-        />
+            <Input
+              isRequired
+              errorMessage="Pastikan Anual Fee terisi"
+              label="Anual Fee"
+              labelPlacement="outside"
+              name="anualFee"
+              placeholder="Anuall Fee"
+              //   defaultValue={"Pardi"}
+              //   classNames={styledInput}
+              onChange={handlePaymentItems}
+              value={paymentItems.anualFee}
+              variant="bordered"
+            />
 
-        <Input
-          isRequired
-          errorMessage="Pastikan Tuition Fee Terisi"
-          label="Tuition Fee"
-          labelPlacement="outside"
-          name="tuitionFee"
-          placeholder="Tuition Fee"
-          //   defaultValue={"Surti"}
-          //   classNames={styledInput}
-          onChange={handlePaymentItems}
-          value={paymentItems.tuitionFee}
-          variant="bordered"
-        />
-        <Input
-          isRequired
-          errorMessage="Pastikan Uniform Fee Terisi"
-          label="Uniform Fee"
-          labelPlacement="outside"
-          name="uniformFee"
-          placeholder="Uniform Fee"
-          //   defaultValue={"Surti"}
-          //   classNames={styledInput}
-          onChange={handlePaymentItems}
-          value={paymentItems.uniformFee}
-          variant="bordered"
-        />
+            <Input
+              isRequired
+              errorMessage="Pastikan Tuition Fee Terisi"
+              label="Tuition Fee"
+              labelPlacement="outside"
+              name="tuitionFee"
+              placeholder="Tuition Fee"
+              //   defaultValue={"Surti"}
+              //   classNames={styledInput}
+              onChange={handlePaymentItems}
+              value={paymentItems.tuitionFee}
+              variant="bordered"
+            />
+            <Input
+              isRequired
+              errorMessage="Pastikan Uniform Fee Terisi"
+              label="Uniform Fee"
+              labelPlacement="outside"
+              name="uniformFee"
+              placeholder="Uniform Fee"
+              //   defaultValue={"Surti"}
+              //   classNames={styledInput}
+              onChange={handlePaymentItems}
+              value={paymentItems.uniformFee}
+              variant="bordered"
+            />
+          </>
+        )}
 
         <Input
           label="Link Registrarion"

@@ -104,6 +104,7 @@ export default function Register() {
         <Select
           label="Kelas"
           placeholder="Pilih Kelas"
+          labelPlacement="outside"
           isRequired
           variant="bordered"
           name="kelas"
@@ -115,6 +116,7 @@ export default function Register() {
         <Select
           label="Jenis Kelamin"
           placeholder="Pilih Jenis Kelamin"
+          labelPlacement="outside"
           isRequired
           variant="bordered"
           name="gender"
@@ -147,6 +149,19 @@ export default function Register() {
           variant="bordered"
           type="text"
         />
+        <Input
+          isRequired
+          errorMessage="Pastikan Alamat Terisi"
+          label="Alamat"
+          labelPlacement="outside"
+          name="alamat"
+          placeholder="Masukan Nama Ibu"
+          //   defaultValue={"Surti"}
+          //   classNames={styledInput}
+          variant="bordered"
+          type="text"
+        />
+
         {/* <Input
           isRequired
           errorMessage="Pastikan Tanggal Lahir Terisi"

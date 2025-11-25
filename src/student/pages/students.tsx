@@ -17,7 +17,7 @@ import {
   DatePicker,
   SelectItem,
   Select,
-  DateInput,
+  // DateInput,
   // DatePicker,
   // type DateInputValue,
   // DateInput,
@@ -32,9 +32,9 @@ import {
 
 import { MdClose, MdMoreHoriz } from "react-icons/md";
 import {
-  CalendarDate,
+  // CalendarDate,
   parseDate,
-  type DateValue,
+  // type DateValue,
 } from "@internationalized/date";
 import { toast } from "react-toastify";
 import { jenisKelamin, kelas } from "../../shared/studentEnum";
@@ -49,7 +49,7 @@ export default function Students() {
   const pathname = location.pathname;
   const titlePage = pathname.split("/")[2];
   const { noInduk } = useParams();
-  const defaultBirthDay = new Date().toISOString().split("T")[0];
+  // const defaultBirthDay = new Date().toISOString().split("T")[0];
   const [isEdit, setIsEdit] = useState(false);
   const [success, setSuccess] = useState(false);
 
@@ -280,13 +280,13 @@ export default function Students() {
                     labelPlacement="outside"
                     defaultValue={detailStudent?.tahunAjaran.toString()}
                     variant={isEdit ? "bordered" : "faded"}
-                    disabled={!isEdit}
+                    isDisabled={!isEdit}
                   />
 
                   {isEdit ? (
                     <DatePicker
                       labelPlacement="outside"
-                      label={"Tanggal Lahir"}
+                      label="Tanggal Lahir"
                       name="tanggalLahir"
                       // selectorButtonPlacement="start"
                       // defaultValue={
@@ -306,34 +306,39 @@ export default function Students() {
                   ) : (
                     <Input
                       defaultValue={
-                        detailStudent &&
-                        parseDate(
-                          detailStudent?.tanggalLahir.split("T")[0]
-                        ).toString()
+                        detailStudent && detailStudent.tanggalLahir
+                          ? parseDate(
+                              detailStudent?.tanggalLahir?.split("T")[0]
+                            ).toString()
+                          : ""
                       }
-                      label={"Tanggal Lahir"}
+                      label="Tanggal Lahir"
+                      placeholder="Tanggal Lahir"
                       name="tanggalLahir"
                       labelPlacement="outside"
-                      disabled={!isEdit}
+                      isDisabled={!isEdit}
+                      variant={isEdit ? "bordered" : "faded"}
                     />
                   )}
                 </div>
                 <div className="w-full flex gap-3 justify-between items-center">
                   <Input
-                    label="Nama Ayah"
+                    label={"Nama Ayah"}
                     name="namaAyah"
                     labelPlacement="outside"
                     defaultValue={detailStudent?.namaAyah}
                     variant={isEdit ? "bordered" : "faded"}
-                    disabled={!isEdit}
+                    placeholder="Nama Ayah"
+                    isDisabled={!isEdit}
                   />
                   <Input
                     label="Nama Ibu"
                     name="namaIbu"
+                    placeholder="Nama Ibu"
                     labelPlacement="outside"
                     defaultValue={detailStudent?.namaIbu}
                     variant={isEdit ? "bordered" : "faded"}
-                    disabled={!isEdit}
+                    isDisabled={!isEdit}
                   />
                 </div>
                 <div className="w-full flex gap-3 justify-between items-center">
@@ -345,17 +350,18 @@ export default function Students() {
                     variant={isEdit ? "bordered" : "faded"}
                     type="number"
                     // className="w-1/2"
-                    disabled={!isEdit}
+                    isDisabled={!isEdit}
                   />
 
                   <Select
                     label="Jenis Kelamin"
                     placeholder="Pilih Jenis Kelamin"
                     labelPlacement="outside"
-                    isRequired
+                    isRequired={isEdit}
                     variant={isEdit ? "bordered" : "faded"}
                     name="gender"
                     defaultSelectedKeys={[detailStudent?.gender]}
+                    isDisabled={!isEdit}
                   >
                     {jenisKelamin.map((k) => (
                       <SelectItem key={k}>{k}</SelectItem>
@@ -385,9 +391,19 @@ export default function Students() {
                   </div>
                 )}
               </Form>
-              <div className="w-full mt-5 grid grid-cols-1 gap-4">
-                <img src={`${detailStudent?.kk}`} />
-                <img src={`${detailStudent?.akteLahir}`} />
+              <div className="w-full mt-5 grid grid-cols-1 gap-5">
+                {detailStudent?.kk && (
+                  <div className="space-y-2">
+                    <p>KK</p>
+                    <img src={`${detailStudent?.kk}`} />
+                  </div>
+                )}
+                {detailStudent.akteLahir && (
+                  <div className="space-y-2">
+                    <p>Akte Kelahiran</p>
+                    <img src={`${detailStudent?.akteLahir}`} />
+                  </div>
+                )}
               </div>
             </div>
           </>
