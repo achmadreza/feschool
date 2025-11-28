@@ -398,7 +398,7 @@ export default function Students() {
                     <img src={`${detailStudent?.kk}`} />
                   </div>
                 )}
-                {detailStudent.akteLahir && (
+                {detailStudent?.akteLahir && (
                   <div className="space-y-2">
                     <p>Akte Kelahiran</p>
                     <img src={`${detailStudent?.akteLahir}`} />

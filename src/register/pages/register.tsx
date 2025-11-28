@@ -155,7 +155,7 @@ export default function Register() {
           label="Alamat"
           labelPlacement="outside"
           name="alamat"
-          placeholder="Masukan Nama Ibu"
+          placeholder="Masukan Alamat Tempat Tinggal Anda"
           //   defaultValue={"Surti"}
           //   classNames={styledInput}
           variant="bordered"
@@ -184,7 +184,8 @@ export default function Register() {
         />
         <Input
           isRequired
-          errorMessage="Pastikan Tahun AJaran Terisi"
+          isDisabled
+          errorMessage="Pastikan Tahun Ajaran Terisi"
           label="Tahun Ajaran"
           labelPlacement="outside"
           name="tahunAjaran"
