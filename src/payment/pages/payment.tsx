@@ -26,7 +26,13 @@ import {
 import axios from "axios";
 import { useEffect, useState, type FormEvent } from "react";
 import type { GetPayments } from "../../interface/getPayments.interface";
-import { MdClose, MdLink, MdMoreHoriz, MdSchool } from "react-icons/md";
+import {
+  MdClose,
+  MdDownloadForOffline,
+  MdLink,
+  MdMoreHoriz,
+  MdSchool,
+} from "react-icons/md";
 import { useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
 import { formatCurrency } from "../../shared/formatCurrency";
@@ -169,6 +175,22 @@ export default function Payments() {
     }
   };
 
+  const downlLoadPaymentFile = async () => {
+    // try {
+    //   const { data } = await axios.get(
+    //     `${import.meta.env.VITE_API_URL}/download/payment`
+    //   );
+    //   return data;
+    // } catch (err) {
+    //   if (axios.isAxiosError(err)) {
+    //     toast.error(err.response?.data.message);
+    //   } else {
+    //     toast.error("internal server error");
+    //   }
+    // }
+    window.location.href = `${import.meta.env.VITE_API_URL}/download/payment`;
+  };
+
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -223,12 +245,21 @@ export default function Payments() {
                 placeholder="Pencarian by nama"
               />
             </div>
-            <Button
-              onPress={() => navigate("/dashboard/payments/add")}
-              className="flex items-center gap-2 bg-gray-900 text-white"
-            >
-              <MdSchool /> Add Student
-            </Button>
+            <div className="flex items-center gap-5">
+              <Button
+                color="success"
+                className="text-white"
+                onPress={downlLoadPaymentFile}
+              >
+                <MdDownloadForOffline size={20} /> Download Xlsx
+              </Button>
+              <Button
+                onPress={() => navigate("/dashboard/payments/add")}
+                className="flex items-center gap-2 bg-gray-900 text-white"
+              >
+                <MdSchool size={20} /> Add Student
+              </Button>
+            </div>
           </div>
           <div className="mt-5 flex">
             <div className="flex-1">
@@ -352,14 +383,16 @@ export default function Payments() {
                       Edit Field
                     </Checkbox>
                   ) : (
-                    <Button
-                      color="success"
-                      size="sm"
-                      onPress={onOpen}
-                      className="text-white"
-                    >
-                      Add Instalment
-                    </Button>
+                    detailPayment.isInstalment && (
+                      <Button
+                        color="success"
+                        size="sm"
+                        onPress={onOpen}
+                        className="text-white"
+                      >
+                        Add Instalment
+                      </Button>
+                    )
                   )}
                 </div>
                 <div>

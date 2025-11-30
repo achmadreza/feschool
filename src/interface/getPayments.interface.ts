@@ -10,6 +10,7 @@ export interface GetPayments {
   paymentPhoto: string;
   createdDate: string;
   instalment: instalment[];
+  isInstalment: boolean;
   __v: number;
 }
 
