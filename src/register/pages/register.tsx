@@ -2,7 +2,7 @@ import { Form, Input, Button } from "@heroui/react";
 import { DatePicker } from "@heroui/date-picker";
 import { Select, SelectItem } from "@heroui/select";
 import { useState, type FormEvent } from "react";
-import { useSearchParams } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import { toast } from "react-toastify";
 import { fileToBase64 } from "../../shared/fileToBase64";
 
@@ -10,6 +10,7 @@ interface DataBase64 {
   nama: string;
   nomorInduk: string;
   noHp: string;
+  tahunAjaran: string;
 }
 
 const kelas = ["KINDERGARTEN A", "KINDERGARTEN B", "PRESCHOOL"];
@@ -18,6 +19,7 @@ const jenisKelamin = ["LAKI-LAKI", "PEREMPUAN"];
 export default function Register() {
   const [searchParams] = useSearchParams();
   const data = searchParams.get("data");
+  const navigate = useNavigate();
   const decodeBase64: DataBase64 = data && JSON.parse(atob(data));
   console.log(decodeBase64);
   const [phoneNumber, setPhoneNumber] = useState(decodeBase64.noHp ?? "");
@@ -63,6 +65,7 @@ export default function Register() {
       akteLahir: await fileToBase64(akteLahir as File),
     };
     // console.log({ ...files, ...data });
+    console.log({ ...files, ...data });
     const res = await fetch(
       `${import.meta.env.VITE_API_URL}/student/${
         decodeBase64.nomorInduk ?? ""
@@ -72,7 +75,11 @@ export default function Register() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ ...files, ...data }),
+        body: JSON.stringify({
+          ...files,
+          ...data,
+          tahunAjaran: decodeBase64.tahunAjaran,
+        }),
       }
     );
     const resBody = await res.json();
@@ -80,6 +87,7 @@ export default function Register() {
       toast.error(resBody.message);
     } else {
       toast.success(resBody.message);
+      navigate("/thanks");
       //   console.log(resBody.message);
     }
   };
@@ -183,7 +191,6 @@ export default function Register() {
           showMonthAndYearPickers
         />
         <Input
-          isRequired
           isDisabled
           errorMessage="Pastikan Tahun Ajaran Terisi"
           label="Tahun Ajaran"
@@ -191,8 +198,8 @@ export default function Register() {
           name="tahunAjaran"
           placeholder=""
           //   classNames={styledInput}
-          defaultValue={new Date().getFullYear().toString()}
-          type="number"
+          value={decodeBase64.tahunAjaran}
+          type="text"
           variant="bordered"
         />
         <div className="w-full flex items-end gap-5">

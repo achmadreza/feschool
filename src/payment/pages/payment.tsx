@@ -57,7 +57,7 @@ export default function Payments() {
   const [loading, setLoading] = useState(false);
   const [loadingInstalment, setLoadingInstalment] = useState(false);
   const [selection, setSelection] = useState<TabsMenu>(TabsMenu.DETAIL);
-  const [openAddInstalment, setOpenInstalment] = useState(false);
+  // const [openAddInstalment, setOpenInstalment] = useState(false);
   const [paymentFee, setPaymnetFee] = useState("");
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 

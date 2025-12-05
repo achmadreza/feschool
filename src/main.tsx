@@ -12,6 +12,7 @@ import Layout from "./components/layout.tsx";
 import Students from "./student/pages/students.tsx";
 import Payments from "./payment/pages/payment.tsx";
 import Add from "./payment/pages/add.tsx";
+import Thanks from "./register/pages/thanks.tsx";
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <HeroUIProvider>
@@ -39,6 +40,7 @@ createRoot(document.getElementById("root")!).render(
           <Route path="*" element={<Navigate to={"/not-found"} replace />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/thanks" element={<Thanks />} />
           {/* dashboard */}
         </Routes>
       </BrowserRouter>
