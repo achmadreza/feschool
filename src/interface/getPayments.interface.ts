@@ -11,6 +11,7 @@ export interface GetPayments {
   createdDate: string;
   instalment: instalment[];
   isInstalment: boolean;
+  student: Student;
   __v: number;
 }
 
@@ -20,4 +21,25 @@ interface instalment {
   paymentId: string;
   paymentFee: number;
   createdDate: Date;
+}
+
+interface Student {
+  _id: string;
+  id: string;
+  kelas: string;
+  nama: string;
+  namaAyah: string;
+  namaIbu: string;
+  noHp: string;
+  tahunAjaran: string;
+  tanggalLahir: string;
+  statusPembayaran: string;
+  createdDate: string;
+  gender: string;
+  nomorInduk: number;
+  __v: number;
+  akteLahir: string;
+  kk: string;
+  pasPhoto: string;
+  alamat: string;
 }

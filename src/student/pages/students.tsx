@@ -138,6 +138,11 @@ export default function Students() {
           <div className="w-full">
             <Table
               aria-label="Student collection table"
+              isStriped
+              classNames={{
+                base: "max-h-[320px] overflow-auto",
+                table: "min-h-[100px]",
+              }}
               //    bottomContent={
               //   students.length > 0 ? (
               //     <div className="flex w-full justify-center">
@@ -165,7 +170,7 @@ export default function Students() {
                 {students?.map((s, i) => {
                   return (
                     <TableRow key={i}>
-                      <TableCell>{s.nama}</TableCell>
+                      <TableCell className="capitalize">{s.nama}</TableCell>
                       <TableCell className="text-xs">{s.kelas}</TableCell>
                       {/* <TableCell>{s.gender}</TableCell> */}
                       <TableCell>{s.tahunAjaran}</TableCell>

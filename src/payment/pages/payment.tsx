@@ -264,7 +264,12 @@ export default function Payments() {
           <div className="mt-5 flex">
             <div className="flex-1">
               <Table
+                isStriped
                 aria-label="Student collection table"
+                classNames={{
+                  base: "max-h-[320px] overflow-auto",
+                  table: "min-h-[100px]",
+                }}
                 //    bottomContent={
                 //   students.length > 0 ? (
                 //     <div className="flex w-full justify-center">
@@ -295,7 +300,9 @@ export default function Payments() {
                     return (
                       <TableRow key={i}>
                         <TableCell>{s.nomorInduk}</TableCell>
-                        <TableCell>{s.nama}</TableCell>
+                        <TableCell className="capitalize">
+                          {s.student.nama}
+                        </TableCell>
                         <TableCell>
                           {formatCurrency(s.registrationFee)}
                         </TableCell>

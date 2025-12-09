@@ -229,6 +229,7 @@ export default function Register() {
           //   classNames={styledInput}
           //   defaultValue={new Date()}
           type="file"
+          accept="image/*,.pdf"
           variant="bordered"
         />
         <Input
@@ -241,6 +242,7 @@ export default function Register() {
           //   classNames={styledInput}
           //   defaultValue={new Date()}
           type="file"
+          accept="image/*,.pdf"
           variant="bordered"
         />
         <Input
@@ -253,6 +255,7 @@ export default function Register() {
           //   classNames={styledInput}
           //   defaultValue={new Date()}
           type="file"
+          accept="image/*,.pdf"
           variant="bordered"
         />
         <Button type="submit" className="w-full" color="primary">

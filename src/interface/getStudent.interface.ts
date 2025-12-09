@@ -6,7 +6,7 @@ export interface GetStudent {
   namaAyah: string;
   namaIbu: string;
   noHp: string;
-  tahunAjaran: number;
+  tahunAjaran: string;
   tanggalLahir: string;
   statusPembayaran: string;
   createdDate: string;
