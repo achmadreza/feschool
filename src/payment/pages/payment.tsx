@@ -386,6 +386,7 @@ export default function Payments() {
                       isSelected={isEdit}
                       checked={isEdit}
                       onValueChange={setIsEdit}
+                      className={`${detailPayment.isInstalment && "hidden"}`}
                     >
                       Edit Field
                     </Checkbox>

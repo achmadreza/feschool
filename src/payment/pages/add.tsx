@@ -3,7 +3,7 @@ import { Form } from "@heroui/form";
 import { Input } from "@heroui/input";
 // import { NumberInput } from "@heroui/react";
 import axios from "axios";
-import { useState, type ChangeEvent, type FormEvent } from "react";
+import { useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { toast } from "react-toastify";
 import { Checkbox } from "@heroui/react";
 
@@ -15,6 +15,7 @@ const instalmentPaymentItems = {
 };
 
 export default function Add() {
+  const formRef = useRef<HTMLFormElement>(null);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [isInstalment, setIsInstament] = useState(false);
   const [instalmentFee, setInstalmentFee] = useState("");
@@ -46,7 +47,7 @@ export default function Add() {
     e.preventDefault();
 
     const data = Object.fromEntries(new FormData(e.currentTarget));
-    console.log(data);
+    // console.log(data);
     const {
       tuitionFee,
       anualFee,
@@ -78,8 +79,18 @@ export default function Add() {
               ...etc,
             }
       );
+      // while success
       toast.success(dataRes.message);
+      formRef.current.reset();
+      setPaymentItems({
+        tuitionFee: "",
+        anualFee: "",
+        registrationFee: "",
+        uniformFee: "",
+      });
+      setInstalmentFee("");
       setRegistrationLink(dataRes.url);
+      //  end while success
     } catch (err) {
       if (axios.isAxiosError(err)) {
         toast.error(err.response?.data.message);
@@ -99,6 +110,7 @@ export default function Add() {
       <Form
         className="w-1/2 flex flex-col flex-wrap gap-6  p-4 rounded-xl"
         onSubmit={onSubmit}
+        ref={formRef}
       >
         <Input
           isRequired
@@ -234,7 +246,7 @@ export default function Add() {
           variant="bordered"
         />
         <Button type="submit" className="w-full" color="primary">
-          Generate Link Registrasi
+          Add Student & Generate Link Registrasi
         </Button>
       </Form>
     </div>
