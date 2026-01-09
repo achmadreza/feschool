@@ -56,6 +56,7 @@ export default function Payments() {
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loadingInstalment, setLoadingInstalment] = useState(false);
+  const [loadingEdit, setLoadingEdit] = useState(false);
   const [selection, setSelection] = useState<TabsMenu>(TabsMenu.DETAIL);
   // const [openAddInstalment, setOpenInstalment] = useState(false);
   const [paymentFee, setPaymnetFee] = useState("");
@@ -157,7 +158,7 @@ export default function Payments() {
           paymentFee,
         }
       );
-      console.log(data.message);
+      // console.log(data.message);
       if (data.data) {
         toast.success(data?.message);
         setLoadingInstalment(false);
@@ -193,9 +194,28 @@ export default function Payments() {
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    const data = Object.fromEntries(new FormData(e.currentTarget));
-    console.log(data);
+    setLoadingEdit(true);
+    const dataForm = Object.fromEntries(new FormData(e.currentTarget));
+    console.log(dataForm);
+    try {
+      const { data } = await axios.put(
+        `${import.meta.env.VITE_API_URL}/payment/${noInduk}`,
+        {
+          isInstalment: detailPayment.isInstalment,
+          ...dataForm,
+        }
+      );
+      toast.success(data.message);
+      setSuccess((prev) => !prev);
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        toast.error(err.response?.data.message);
+      } else {
+        toast.error("internal server error");
+      }
+    } finally {
+      setLoadingEdit(false);
+    }
   };
 
   return (
@@ -391,7 +411,7 @@ export default function Payments() {
                       Edit Field
                     </Checkbox>
                   ) : (
-                    detailPayment.isInstalment && (
+                    detailPayment?.isInstalment && (
                       <Button
                         color="success"
                         size="sm"
@@ -561,7 +581,11 @@ export default function Payments() {
                             </div>
                             {isEdit && (
                               <div className="mt-3 w-full flex justify-end">
-                                <Button type="submit" color="primary">
+                                <Button
+                                  type="submit"
+                                  color="primary"
+                                  isDisabled={loadingEdit}
+                                >
                                   Submit
                                 </Button>
                               </div>
@@ -582,7 +606,7 @@ export default function Payments() {
                                 <TableColumn>Created At</TableColumn>
                               </TableHeader>
                               <TableBody>
-                                {detailPayment?.instalment.map((ins, i) => (
+                                {detailPayment?.instalment?.map((ins, i) => (
                                   <TableRow key={i}>
                                     <TableCell>{ins.paymentFee}</TableCell>
                                     <TableCell>
